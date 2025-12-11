@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curbside Kitchen - Gourmet Burgers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            margin-top: 5px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 30px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #f97316;
+            display: inline-block;
+        }
+
+        .menu-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .menu-item {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .item-info h3 {
+            font-size: 1.2rem;
+            color: #f97316;
+            margin-bottom: 5px;
+        }
+
+        .item-info p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .item-price {
+            font-weight: 700;
+            color: #4ade80;
+        }
+
+        .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qty-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: none;
+            background: #f97316;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .qty-btn:hover {
+            background: #ea580c;
+        }
+
+        .qty-display {
+            font-size: 1.2rem;
+            font-weight: 700;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .order-form {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #f97316;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #f97316;
+        }
+
+        .form-group select option {
+            background: #1a1a2e;
+            color: white;
+        }
+
+        .cart-summary {
+            background: rgba(249, 115, 22, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .cart-summary h3 {
+            margin-bottom: 10px;
+            color: #f97316;
+        }
+
+        .cart-items {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+
+        .cart-total {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #4ade80;
+            text-align: right;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .success-message {
+            display: none;
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .success-message h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .success-message p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .order-number {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 15px 0;
+            color: #1a1a2e;
+        }
+
+        .emoji {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .staff-link {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .staff-link a {
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .staff-link a:hover {
+            color: #f97316;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🍔 Curbside Kitchen</h1>
+        <p>Gourmet Burgers • Order Ahead • Skip the Line</p>
+    </div>
+
+    <div class="container">
+        <div id="order-section">
+            <h2 class="section-title">Our Menu</h2>
+            
+            <div class="menu-grid">
+                <div class="menu-item" data-name="The Classic Smash" data-price="12">
+                    <div class="item-info">
+                        <h3>The Classic Smash</h3>
+                        <p>Double smashed patties, American cheese, pickles, onion, special sauce</p>
+                        <span class="item-price">$12.00</span>
+                    </div>
+                    <div class="item-controls">
+                        <button class="qty-btn minus">−</button>
+                        <span class="qty-display">0</span>
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-name="Bacon Blaze" data-price="14">
+                    <div class="item-info">
+                        <h3>Bacon Blaze</h3>
+                        <p>Angus beef, crispy bacon, pepper jack, jalapeños, chipotle aioli</p>
+                        <span class="item-price">$14.00</span>
+                    </div>
+                    <div class="item-controls">
+                        <button class="qty-btn minus">−</button>
+                        <span class="qty-display">0</span>
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-name="Mushroom Swiss" data-price="13">
+                    <div class="item-info">
+                        <h3>Mushroom Swiss</h3>
+                        <p>Beef patty, sautéed mushrooms, Swiss cheese, garlic herb butter</p>
+                        <span class="item-price">$13.00</span>
+                    </div>
+                    <div class="item-controls">
+                        <button class="qty-btn minus">−</button>
+                        <span class="qty-display">0</span>
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-name="BBQ Ranger" data-price="14">
+                    <div class="item-info">
+                        <h3>BBQ Ranger</h3>
+                        <p>Beef patty, cheddar, onion rings, BBQ sauce, coleslaw</p>
+                        <span class="item-price">$14.00</span>
+                    </div>
+                    <div class="item-controls">
+                        <button class="qty-btn minus">−</button>
+                        <span class="qty-display">0</span>
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-name="Veggie Deluxe" data-price="11">
+                    <div class="item-info">
+                        <h3>Veggie Deluxe</h3>
+                        <p>House-made black bean patty, avocado, sprouts, tomato, herb mayo</p>
+                        <span class="item-price">$11.00</span>
+                    </div>
+                    <div class="item-controls">
+                        <button class="qty-btn minus">−</button>
+                        <span class="qty-display">0</span>
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="section-title">Sides</h2>
+            
+            <div class="menu-grid">
+                <div class="menu-item" data-name="Truffle Fries" data-price="6">
+                    <div class="item-info">
+                        <h3>Truffle Fries</h3>
+                        <p>Crispy fries, truffle oil, parmesan, fresh herbs</p>
+                        <span class="item-price">$6.00</span>
+                    </div>
+                    <div class="item-controls">
+                        <button class="qty-btn minus">−</button>
+                        <span class="qty-display">0</span>
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-name="Onion Rings" data-price="5">
+                    <div class="item-info">
+                        <h3>Onion Rings</h3>
+                        <p>Beer-battered, served with ranch</p>
+                        <span class="item-price">$5.00</span>
+                    </div>
+                    <div class="item-controls">
+                        <button class="qty-btn minus">−</button>
+                        <span class="qty-display">0</span>
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-name="Sweet Potato Fries" data-price="5">
+                    <div class="item-info">
+                        <h3>Sweet Potato Fries</h3>
+                        <p>Crispy sweet potato fries with maple aioli</p>
+                        <span class="item-price">$5.00</span>
+                    </div>
+                    <div class="item-controls">
+                        <button class="qty-btn minus">−</button>
+                        <span class="qty-display">0</span>
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="section-title">Drinks</h2>
+            
+            <div class="menu-grid">
+                <div class="menu-item" data-name="Fresh Lemonade" data-price="4">
+                    <div class="item-info">
+                        <h3>Fresh Lemonade</h3>
+                        <p>House-made with real lemons</p>
+                        <span class="item-price">$4.00</span>
+                    </div>
+                    <div class="item-controls">
+                        <button class="qty-btn minus">−</button>
+                        <span class="qty-display">0</span>
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-name="Iced Tea" data-price="3">
+                    <div class="item-info">
+                        <h3>Iced Tea</h3>
+                        <p>Sweet or unsweet</p>
+                        <span class="item-price">$3.00</span>
+                    </div>
+                    <div class="item-controls">
+                        <button class="qty-btn minus">−</button>
+                        <span class="qty-display">0</span>
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                </div>
+
+                <div class="menu-item" data-name="Bottled Water" data-price="2">
+                    <div class="item-info">
+                        <h3>Bottled Water</h3>
+                        <p>Cold & refreshing</p>
+                        <span class="item-price">$2.00</span>
+                    </div>
+                    <div class="item-controls">
+                        <button class="qty-btn minus">−</button>
+                        <span class="qty-display">0</span>
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <form class="order-form" id="orderForm">
+                <div class="cart-summary">
+                    <h3>🛒 Your Order</h3>
+                    <div class="cart-items" id="cartItems">
+                        <em>No items yet - add something delicious!</em>
+                    </div>
+                    <div class="cart-total">Total: $<span id="cartTotal">0.00</span></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter your name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="pickupTime">Pickup Time</label>
+                    <select id="pickupTime" name="pickupTime" required>
+                        <option value="">Select a time...</option>
+                        <option value="10:30 AM">10:30 AM</option>
+                        <option value="11:00 AM">11:00 AM</option>
+                        <option value="11:30 AM">11:30 AM</option>
+                        <option value="12:00 PM">12:00 PM</option>
+                        <option value="12:30 PM">12:30 PM</option>
+                        <option value="1:00 PM">1:00 PM</option>
+                        <option value="1:30 PM">1:30 PM</option>
+                        <option value="2:00 PM">2:00 PM</option>
+                        <option value="2:30 PM">2:30 PM</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Special Instructions (optional)</label>
+                    <input type="text" id="notes" name="notes" placeholder="Any allergies or special requests?">
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                    Place Order - Pay at Pickup
+                </button>
+            </form>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <div class="emoji">🎉</div>
+            <h2>Order Placed!</h2>
+            <p>Your order number is:</p>
+            <div class="order-number" id="orderNumber">#000</div>
+            <p>We'll have it ready for pickup at <strong id="confirmTime"></strong></p>
+            <p style="margin-top: 15px;">Pay when you pick up. See you soon! 🍔</p>
+        </div>
+
+        <div class="staff-link">
+            <a href="staff.html">Staff Dashboard →</a>
+        </div>
+    </div>
+
+    <script>
+        // Cart state
+        let cart = {};
+        
+        // Initialize quantity controls
+        document.querySelectorAll('.menu-item').forEach(item => {
+            const name = item.dataset.name;
+            const price = parseFloat(item.dataset.price);
+            const minusBtn = item.querySelector('.minus');
+            const plusBtn = item.querySelector('.plus');
+            const display = item.querySelector('.qty-display');
+            
+            cart[name] = { qty: 0, price: price };
+            
+            minusBtn.addEventListener('click', () => {
+                if (cart[name].qty > 0) {
+                    cart[name].qty--;
+                    display.textContent = cart[name].qty;
+                    updateCart();
+                }
+            });
+            
+            plusBtn.addEventListener('click', () => {
+                cart[name].qty++;
+                display.textContent = cart[name].qty;
+                updateCart();
+            });
+        });
+        
+        function updateCart() {
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            let items = [];
+            let total = 0;
+            
+            for (let [name, data] of Object.entries(cart)) {
+                if (data.qty > 0) {
+                    items.push(`${data.qty}x ${name} - $${(data.qty * data.price).toFixed(2)}`);
+                    total += data.qty * data.price;
+                }
+            }
+            
+            if (items.length === 0) {
+                cartItems.innerHTML = '<em>No items yet - add something delicious!</em>';
+                submitBtn.disabled = true;
+            } else {
+                cartItems.innerHTML = items.join('<br>');
+                submitBtn.disabled = false;
+            }
+            
+            cartTotal.textContent = total.toFixed(2);
+        }
+        
+        // Form submission
+        document.getElementById('orderForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Placing Order...';
+            
+            // Build order items
+            let orderItems = [];
+            let total = 0;
+            
+            for (let [name, data] of Object.entries(cart)) {
+                if (data.qty > 0) {
+                    orderItems.push({
+                        name: name,
+                        quantity: data.qty,
+                        price: data.price,
+                        subtotal: data.qty * data.price
+                    });
+                    total += data.qty * data.price;
+                }
+            }
+            
+            const order = {
+                id: 'ORD-' + Date.now(),
+                orderNumber: Math.floor(Math.random() * 900) + 100,
+                customerName: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                pickupTime: document.getElementById('pickupTime').value,
+                notes: document.getElementById('notes').value,
+                items: orderItems,
+                total: total,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            };
+            
+            try {
+                // Save to localStorage for demo (replace with Cosmos DB later)
+                let orders = JSON.parse(localStorage.getItem('curbsideOrders') || '[]');
+                orders.push(order);
+                localStorage.setItem('curbsideOrders', JSON.stringify(orders));
+                
+                // Show success
+                document.getElementById('order-section').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'block';
+                document.getElementById('orderNumber').textContent = '#' + order.orderNumber;
+                document.getElementById('confirmTime').textContent = order.pickupTime;
+                
+            } catch (error) {
+                alert('Error placing order. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Place Order - Pay at Pickup';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - Curbside Kitchen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .order-count {
+            background: #f97316;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .refresh-btn {
+            background: #3b82f6;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: #2563eb;
+        }
+
+        .back-link {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: #f97316;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 25px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .tab.active {
+            background: #f97316;
+        }
+
+        .tab .count {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-size: 0.85rem;
+        }
+
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .order-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+
+        .order-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .order-header {
+            background: rgba(0,0,0,0.2);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #f97316;
+        }
+
+        .order-time {
+            text-align: right;
+        }
+
+        .pickup-time {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #4ade80;
+        }
+
+        .order-age {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        .order-body {
+            padding: 20px;
+        }
+
+        .customer-info {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .customer-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .customer-phone {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        .order-items {
+            margin-bottom: 15px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-qty {
+            background: #f97316;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-weight: 700;
+            margin-right: 10px;
+        }
+
+        .order-notes {
+            background: rgba(251, 191, 36, 0.2);
+            border-left: 3px solid #fbbf24;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .order-notes strong {
+            color: #fbbf24;
+        }
+
+        .order-total {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #4ade80;
+            text-align: right;
+            margin-bottom: 15px;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .btn-start {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #2563eb;
+        }
+
+        .btn-ready {
+            background: #4ade80;
+            color: #0f172a;
+        }
+
+        .btn-ready:hover {
+            background: #22c55e;
+        }
+
+        .btn-complete {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .btn-complete:hover {
+            background: #7c3aed;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #fbbf24;
+            color: #0f172a;
+        }
+
+        .status-preparing {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .status-ready {
+            background: #4ade80;
+            color: #0f172a;
+        }
+
+        .status-completed {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state .emoji {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #94a3b8;
+        }
+
+        .clear-btn {
+            background: #ef4444;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .clear-btn:hover {
+            background: #dc2626;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .orders-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🍔 Curbside Kitchen - Staff Dashboard</h1>
+        <div class="header-right">
+            <div class="order-count">
+                <span id="pendingCount">0</span> pending
+            </div>
+            <button class="refresh-btn" onclick="loadOrders()">↻ Refresh</button>
+            <button class="clear-btn" onclick="clearAllOrders()">Clear All</button>
+            <a href="index.html" class="back-link">← Customer View</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" data-status="pending" onclick="filterOrders('pending')">
+                New Orders<span class="count" id="tabPending">0</span>
+            </button>
+            <button class="tab" data-status="preparing" onclick="filterOrders('preparing')">
+                Preparing<span class="count" id="tabPreparing">0</span>
+            </button>
+            <button class="tab" data-status="ready" onclick="filterOrders('ready')">
+                Ready<span class="count" id="tabReady">0</span>
+            </button>
+            <button class="tab" data-status="completed" onclick="filterOrders('completed')">
+                Completed<span class="count" id="tabCompleted">0</span>
+            </button>
+        </div>
+
+        <div class="orders-grid" id="ordersGrid">
+            <!-- Orders will be loaded here -->
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="emoji">📭</div>
+            <h2>No orders here</h2>
+            <p>Orders will appear when customers place them</p>
+        </div>
+    </div>
+
+    <script>
+        let allOrders = [];
+        let currentFilter = 'pending';
+
+        function loadOrders() {
+            allOrders = JSON.parse(localStorage.getItem('curbsideOrders') || '[]');
+            // Sort by creation time, newest first
+            allOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            updateCounts();
+            renderOrders();
+        }
+
+        function updateCounts() {
+            const counts = {
+                pending: 0,
+                preparing: 0,
+                ready: 0,
+                completed: 0
+            };
+
+            allOrders.forEach(order => {
+                if (counts.hasOwnProperty(order.status)) {
+                    counts[order.status]++;
+                }
+            });
+
+            document.getElementById('pendingCount').textContent = counts.pending;
+            document.getElementById('tabPending').textContent = counts.pending;
+            document.getElementById('tabPreparing').textContent = counts.preparing;
+            document.getElementById('tabReady').textContent = counts.ready;
+            document.getElementById('tabCompleted').textContent = counts.completed;
+        }
+
+        function filterOrders(status) {
+            currentFilter = status;
+            
+            // Update tab styles
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.status === status) {
+                    tab.classList.add('active');
+                }
+            });
+
+            renderOrders();
+        }
+
+        function renderOrders() {
+            const grid = document.getElementById('ordersGrid');
+            const emptyState = document.getElementById('emptyState');
+            
+            const filteredOrders = allOrders.filter(o => o.status === currentFilter);
+
+            if (filteredOrders.length === 0) {
+                grid.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            grid.innerHTML = filteredOrders.map(order => renderOrderCard(order)).join('');
+        }
+
+        function renderOrderCard(order) {
+            const itemsHtml = order.items.map(item => `
+                <div class="order-item">
+                    <span><span class="item-qty">${item.quantity}</span>${item.name}</span>
+                    <span>$${item.subtotal.toFixed(2)}</span>
+                </div>
+            `).join('');
+
+            const notesHtml = order.notes ? `
+                <div class="order-notes">
+                    <strong>Note:</strong> ${order.notes}
+                </div>
+            ` : '';
+
+            const actionsHtml = getActionsHtml(order);
+            const ageText = getOrderAge(order.createdAt);
+
+            return `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-number">#${order.orderNumber}</div>
+                            <span class="status-badge status-${order.status}">${order.status}</span>
+                        </div>
+                        <div class="order-time">
+                            <div class="pickup-time">${order.pickupTime}</div>
+                            <div class="order-age">${ageText}</div>
+                        </div>
+                    </div>
+                    <div class="order-body">
+                        <div class="customer-info">
+                            <div class="customer-name">${order.customerName}</div>
+                            <div class="customer-phone">${order.phone}</div>
+                        </div>
+                        <div class="order-items">
+                            ${itemsHtml}
+                        </div>
+                        ${notesHtml}
+                        <div class="order-total">Total: $${order.total.toFixed(2)}</div>
+                        <div class="order-actions">
+                            ${actionsHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getActionsHtml(order) {
+            switch(order.status) {
+                case 'pending':
+                    return `<button class="action-btn btn-start" onclick="updateStatus('${order.id}', 'preparing')">🍳 Start Preparing</button>`;
+                case 'preparing':
+                    return `<button class="action-btn btn-ready" onclick="updateStatus('${order.id}', 'ready')">✅ Mark Ready</button>`;
+                case 'ready':
+                    return `<button class="action-btn btn-complete" onclick="updateStatus('${order.id}', 'completed')">🎉 Picked Up</button>`;
+                case 'completed':
+                    return `<span style="color: #64748b; text-align: center; width: 100%;">Order completed</span>`;
+                default:
+                    return '';
+            }
+        }
+
+        function getOrderAge(createdAt) {
+            const now = new Date();
+            const created = new Date(createdAt);
+            const diffMs = now - created;
+            const diffMins = Math.floor(diffMs / 60000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            const diffHours = Math.floor(diffMins / 60);
+            return `${diffHours}h ${diffMins % 60}m ago`;
+        }
+
+        function updateStatus(orderId, newStatus) {
+            const orderIndex = allOrders.findIndex(o => o.id === orderId);
+            if (orderIndex !== -1) {
+                allOrders[orderIndex].status = newStatus;
+                localStorage.setItem('curbsideOrders', JSON.stringify(allOrders));
+                updateCounts();
+                renderOrders();
+            }
+        }
+
+        function clearAllOrders() {
+            if (confirm('Are you sure you want to clear ALL orders? This cannot be undone.')) {
+                localStorage.removeItem('curbsideOrders');
+                allOrders = [];
+                updateCounts();
+                renderOrders();
+            }
+        }
+
+        // Load orders on page load
+        loadOrders();
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadOrders, 30000);
+    </script>
+</body>
+</html>
