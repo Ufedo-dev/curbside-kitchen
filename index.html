@@ -267,12 +267,24 @@
         .staff-link a:hover {
             color: #f97316;
         }
+
+        .cloud-badge {
+            background: rgba(74, 222, 128, 0.2);
+            border: 1px solid #4ade80;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #4ade80;
+            margin-top: 10px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>🍔 Curbside Kitchen</h1>
         <p>Gourmet Burgers • Order Ahead • Skip the Line</p>
+        <div class="cloud-badge">☁️ Powered by Azure Cloud</div>
     </div>
 
     <div class="container">
@@ -493,6 +505,9 @@
     </div>
 
     <script>
+        // Azure Function API URL
+        const API_URL = 'https://curbside-kitchen-api-f7aechftf2d9eefm.canadacentral-01.azurewebsites.net/api/Orders';
+        
         // Cart state
         let cart = {};
         
@@ -585,10 +600,18 @@
             };
             
             try {
-                // Save to localStorage for demo (replace with Cosmos DB later)
-                let orders = JSON.parse(localStorage.getItem('curbsideOrders') || '[]');
-                orders.push(order);
-                localStorage.setItem('curbsideOrders', JSON.stringify(orders));
+                // Send to Azure Function API
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(order)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to place order');
+                }
                 
                 // Show success
                 document.getElementById('order-section').style.display = 'none';
@@ -597,6 +620,7 @@
                 document.getElementById('confirmTime').textContent = order.pickupTime;
                 
             } catch (error) {
+                console.error('Error:', error);
                 alert('Error placing order. Please try again.');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Place Order - Pay at Pickup';
