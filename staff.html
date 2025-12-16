@@ -25,6 +25,8 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .header h1 {
@@ -35,7 +37,17 @@
         .header-right {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .cloud-badge {
+            background: rgba(74, 222, 128, 0.2);
+            border: 1px solid #4ade80;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #4ade80;
         }
 
         .order-count {
@@ -80,6 +92,7 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .tab {
@@ -309,19 +322,30 @@
             color: #94a3b8;
         }
 
-        .clear-btn {
-            background: #ef4444;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            color: white;
-            font-size: 0.85rem;
-            cursor: pointer;
-            margin-left: 10px;
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
         }
 
-        .clear-btn:hover {
-            background: #dc2626;
+        .loading-state .spinner {
+            font-size: 3rem;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .error-state {
+            text-align: center;
+            padding: 30px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            border-radius: 10px;
+            margin-bottom: 20px;
         }
 
         @media (max-width: 600px) {
@@ -344,11 +368,11 @@
     <div class="header">
         <h1>🍔 Curbside Kitchen - Staff Dashboard</h1>
         <div class="header-right">
+            <div class="cloud-badge">☁️ Connected to Azure</div>
             <div class="order-count">
                 <span id="pendingCount">0</span> pending
             </div>
             <button class="refresh-btn" onclick="loadOrders()">↻ Refresh</button>
-            <button class="clear-btn" onclick="clearAllOrders()">Clear All</button>
             <a href="index.html" class="back-link">← Customer View</a>
         </div>
     </div>
@@ -369,6 +393,15 @@
             </button>
         </div>
 
+        <div id="errorState" class="error-state" style="display: none;">
+            <p>⚠️ Could not connect to database. <button onclick="loadOrders()" style="background: #ef4444; border: none; color: white; padding: 5px 15px; border-radius: 5px; cursor: pointer;">Retry</button></p>
+        </div>
+
+        <div class="loading-state" id="loadingState">
+            <div class="spinner">⏳</div>
+            <p>Loading orders from Azure...</p>
+        </div>
+
         <div class="orders-grid" id="ordersGrid">
             <!-- Orders will be loaded here -->
         </div>
@@ -381,15 +414,42 @@
     </div>
 
     <script>
+        // Azure Function API URL
+        const API_URL = 'https://curbside-kitchen-api-f7aechftf2d9eefm.canadacentral-01.azurewebsites.net/api/Orders';
+        
         let allOrders = [];
         let currentFilter = 'pending';
 
-        function loadOrders() {
-            allOrders = JSON.parse(localStorage.getItem('curbsideOrders') || '[]');
-            // Sort by creation time, newest first
-            allOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            updateCounts();
-            renderOrders();
+        async function loadOrders() {
+            const loadingState = document.getElementById('loadingState');
+            const errorState = document.getElementById('errorState');
+            const ordersGrid = document.getElementById('ordersGrid');
+            
+            loadingState.style.display = 'block';
+            errorState.style.display = 'none';
+            ordersGrid.innerHTML = '';
+
+            try {
+                const response = await fetch(API_URL);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch orders');
+                }
+                
+                allOrders = await response.json();
+                
+                // Sort by creation time, newest first
+                allOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                loadingState.style.display = 'none';
+                updateCounts();
+                renderOrders();
+                
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                loadingState.style.display = 'none';
+                errorState.style.display = 'block';
+            }
         }
 
         function updateCounts() {
@@ -517,22 +577,33 @@
             return `${diffHours}h ${diffMins % 60}m ago`;
         }
 
-        function updateStatus(orderId, newStatus) {
+        async function updateStatus(orderId, newStatus) {
             const orderIndex = allOrders.findIndex(o => o.id === orderId);
-            if (orderIndex !== -1) {
-                allOrders[orderIndex].status = newStatus;
-                localStorage.setItem('curbsideOrders', JSON.stringify(allOrders));
-                updateCounts();
-                renderOrders();
-            }
-        }
+            if (orderIndex === -1) return;
 
-        function clearAllOrders() {
-            if (confirm('Are you sure you want to clear ALL orders? This cannot be undone.')) {
-                localStorage.removeItem('curbsideOrders');
-                allOrders = [];
+            const order = { ...allOrders[orderIndex], status: newStatus };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(order)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update order');
+                }
+
+                // Update local state
+                allOrders[orderIndex].status = newStatus;
                 updateCounts();
                 renderOrders();
+
+            } catch (error) {
+                console.error('Error updating order:', error);
+                alert('Failed to update order status. Please try again.');
             }
         }
 
